@@ -1,12 +1,12 @@
 from itertools import product
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sarcasm_detection.training.lstm import train
+from sarcasm_detection.training.rnn_search import train
 
 param_grid = {
-    'hidden_size': [64, 256, 512],
-    'n_layers': [1, 2, 3],
-    'batch_size': [32, 128],
+    'hidden_size': [256, 512, 1024],
+    'n_layers': [1, 2],
+    'batch_size': [32],
     'max_tokens': [5000],
     'lr': [0.001, 0.0001]
 }
