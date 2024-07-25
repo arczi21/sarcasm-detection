@@ -22,7 +22,7 @@ def get_metrics(model, batch, labels, device):
 
 def train(df_train, df_valid, model_class, n_epochs=2, hidden_size=64, n_layers=3, batch_size=256, max_tokens=3000,
           lr=0.0001,
-          wandb_log=False, log_every=10, **kwargs):
+          wandb_log=False, log_every=100, **kwargs):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     data_loader_train = SarcasticDataLoader(df_train)
@@ -55,7 +55,9 @@ def train(df_train, df_valid, model_class, n_epochs=2, hidden_size=64, n_layers=
 
             optimizer.zero_grad()
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
+
 
             if wandb_log:
                 wandb.log({"loss": loss.item(), "step": step})
@@ -67,6 +69,14 @@ def train(df_train, df_valid, model_class, n_epochs=2, hidden_size=64, n_layers=
 
                     wandb.log({"test_accuracy": accuracy.item(), "step": step})
                     wandb.log({"test_loss": loss.item(), "step": step})
+            elif step % log_every == 0:
+                batch, labels = batch_loader_test.get_all_data()
+
+                loss, accuracy = get_metrics(model, batch, labels, device)
+
+                print('Epoch: %s | Step: %s | loss: %s | accuracy: %s' % (epoch, (step+1)*batch_size,
+                                                                          loss.item(), accuracy.item()))
+
             step += 1
 
     batch, labels = batch_loader_test.get_all_data()
