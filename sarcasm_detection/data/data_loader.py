@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class SarcasticDataLoader:
+class DataLoader:
     def __init__(self, data_frame):
         self.df = data_frame
         self.length = len(self.df)

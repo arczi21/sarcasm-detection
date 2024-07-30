@@ -36,9 +36,36 @@ RNN Search model is an attention-based architecture inspired by the work "[Neura
 
 In this architecture, the attention mechanism assigns a weight to each input token, indicating its relevance to the current output prediction. The RNN Search model then computes a context vector as a weighted sum of the input annotations, where the weights are determined by the attention scores. This context vector is then used to compute the output.
 
+### TransformerEncoder
+
+The Transformer Encoder is a fundamental component of the Transformer architecture introduced in [Attention is All You Need](https://arxiv.org/abs/1706.03762). The Transformer Encoder leverages self-attention mechanisms to capture intricate dependencies and contextual information from the input text. The Transformer Encoder consists of a stack of identical layers, each containing two primary components:
+
+**1.** Multi-Head Self-Attention Mechanism: This mechanism allows the model to attend to different parts of the input sequence simultaneously, capturing various aspects of contextual information. It computes attention scores for each token with respect to every other token in the sequence, enabling the model to weigh their relevance dynamically.
+
+**2.** Position-Wise Feed-Forward Network: This component is applied to each position independently and identically. It consists of two linear transformations with a ReLU activation in between, enhancing the model's ability to learn complex patterns and interactions within the data.
+
+Additionally, the Transformer Encoder incorporates residual connections and layer normalization to stabilize training and improve convergence.
+
+
+### TransformerDecoder
+
+The Transformer Decoder is another key component of the Transformer architecture introduced in Attention is All You Need. It is primarily designed for sequence generation tasks, utilizing self-attention and encoder-decoder attention mechanisms to generate output sequences. The Transformer Decoder consists of a stack of identical layers, each containing three main components:
+
+**1.** Masked Multi-Head Self-Attention: This mechanism allows the model to attend to previous tokens in the output sequence while masking future tokens, ensuring that predictions are based solely on known information. It computes attention scores for each token with respect to every other token in the sequence up to the current position, dynamically weighing their relevance.
+
+**2.** Encoder-Decoder Attention: This component attends to the encoder's output representations, integrating contextual information from the input sequence. For models using only the Transformer Decoder, this layer is adapted to focus on the input sequence itself, allowing the decoder to capture relevant information without a separate encoder.
+
+**3.** Position-Wise Feed-Forward Network: Similar to the encoder, this component applies two linear transformations with a ReLU activation to each position independently, enhancing the model's ability to learn complex patterns and interactions within the data.
+
+Additionally, the Transformer Decoder incorporates residual connections and layer normalization to stabilize training and improve convergence.
+
+The Transformer Decoder has been successfully used in applications such as [Generating Wikipedia by Summarizing Long Sequences](https://arxiv.org/abs/1801.10198) and [Improving Language Understanding by Generative Pre-Training](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf).
+
 ## Results
 
 | Model | Accuracy     |
 | :-------- | :------- |
 | Vanilla LSTM | 85.2% |
 | RNN Search | 87% |
+| TransformerEncoder with MaxPooling | 85.3% |
+| TransformerDecoder | 79% |

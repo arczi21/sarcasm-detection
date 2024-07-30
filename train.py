@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from sarcasm_detection.data import SarcasticDataLoader, BatchLoader
-from sarcasm_detection.preprocessing import SarcasticEncoder
+from sarcasm_detection.data import DataLoader, BatchLoader
+from sarcasm_detection.preprocessing import Encoder
 
 
 def get_metrics(model, batch, labels, device):
@@ -20,23 +20,24 @@ def get_metrics(model, batch, labels, device):
     return loss, accuracy
 
 
-def train(df_train, df_valid, model_class, n_epochs=2, hidden_size=64, n_layers=3, batch_size=256, max_tokens=3000,
-          lr=0.0001,
+def train(df_train, df_valid, model_class, n_epochs=2, batch_size=256, max_tokens=3000, lr=0.0001,
           wandb_log=False, log_every=100, **kwargs):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    data_loader_train = SarcasticDataLoader(df_train)
-    data_loader_test = SarcasticDataLoader(df_valid)
+    print(device)
+
+    data_loader_train = DataLoader(df_train)
+    data_loader_test = DataLoader(df_valid)
 
     headlines = data_loader_train.get_all_headlines()
-    encoder = SarcasticEncoder(headlines, max_tokens=max_tokens)
+    encoder = Encoder(headlines, max_tokens=max_tokens)
     if max_tokens is None:
         max_tokens = len(encoder)
 
     batch_loader_train = BatchLoader(data_loader_train, encoder, batch_size)
     batch_loader_test = BatchLoader(data_loader_test, encoder)
 
-    model = model_class(max_tokens, hidden_size, n_layers).to(device)
+    model = model_class(max_tokens, **kwargs).to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
 

@@ -3,13 +3,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from sarcasm_detection.data.data_loader import SarcasticDataLoader
-from sarcasm_detection.preprocessing.encoder import SarcasticEncoder
+from sarcasm_detection.data.data_loader import DataLoader
+from sarcasm_detection.preprocessing.encoder import Encoder
 from torch.nn.utils.rnn import pad_sequence
 
 
 class BatchLoader:
-    def __init__(self, data_loader: SarcasticDataLoader, encoder: SarcasticEncoder, batch_size=32):
+    def __init__(self, data_loader: DataLoader, encoder: Encoder, batch_size=32):
         self.data_loader = data_loader
         self.encoder = encoder
         self.batch_size = batch_size
@@ -20,7 +20,7 @@ class BatchLoader:
 
     def get_batch(self, begin, end):
         text_batch, label_batch = self.data_loader.get_data(begin, end)
-        text_batch_tensor = self.encoder.encode_text_tensor_batch(text_batch)
+        text_batch_tensor = self.encoder.encode_text_list(text_batch)
         return text_batch_tensor, torch.tensor(label_batch)
 
     def get_all_data(self):

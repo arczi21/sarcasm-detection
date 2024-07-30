@@ -4,11 +4,11 @@ import torch.nn.functional as F
 import nltk
 from nltk.tokenize import TreebankWordTokenizer, TreebankWordDetokenizer
 from nltk.probability import FreqDist
-from sarcasm_detection.data.data_loader import SarcasticDataLoader
+from sarcasm_detection.data.data_loader import DataLoader
 from torch.nn.utils.rnn import pad_sequence
 
 
-class SarcasticEncoder:
+class Encoder:
     def __init__(self, dataset, max_tokens=None):
         nltk.download('punkt', quiet=True)
 
@@ -31,20 +31,13 @@ class SarcasticEncoder:
 
     def encode_text(self, text):
         tokens = self.tokenizer.tokenize(text.lower())
-        return [self.token_dict.get(token, self.token_dict["<UNK>"]) for token in tokens]
+        return torch.tensor([self.token_dict.get(token, self.token_dict["<UNK>"]) for token in tokens])
 
-    def encode_text_tensor(self, text):
-        tokens = self.encode_text(text)
-        one_hot = F.one_hot(torch.tensor(tokens), len(self))
-        return one_hot.to(torch.float32)
-
-    def encode_text_tensor_batch(self, text_list):
+    def encode_text_list(self, text_list):
         batch = []
         for text in text_list:
-            batch.append(torch.tensor(self.encode_text(text)))
-        batch = pad_sequence(batch, batch_first=True, padding_value=0)
-        batch = F.one_hot(batch)
-        return batch.to(torch.float32)
+            batch.append(self.encode_text(text))
+        return pad_sequence(batch, batch_first=True, padding_value=0)
 
 
 

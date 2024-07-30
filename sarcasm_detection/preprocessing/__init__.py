@@ -1,1 +1,1 @@
-from .encoder import SarcasticEncoder
+from .encoder import Encoder
