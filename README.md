@@ -12,7 +12,7 @@ The dataset used for this project is the News Headlines Sarcasm Detection datase
 
 ## Preprocessing
 
-The preprocessing phase involved converting raw text data into a format suitable for model training. Initially, the text was tokenized using the `TreebankWordTokenizer` from the [NLTK](https://www.nltk.org/) library. This tokenizer splits the text into individual words or tokens, handling punctuation and special characters appropriately to ensure accurate tokenization. After tokenization, the tokens were converted into numerical representations using one-hot encoding.
+The preprocessing phase involved converting raw text data into a format suitable for model training. Initially, the text was tokenized using the `TreebankWordTokenizer` from the [NLTK](https://www.nltk.org/) library. This tokenizer splits the text into individual words or tokens, handling punctuation and special characters appropriately to ensure accurate tokenization. Following tokenization, embeddings for each token were learned.
 
 ## Models
 
@@ -61,6 +61,12 @@ Additionally, the Transformer Decoder incorporates residual connections and laye
 
 The Transformer Decoder has been successfully used in applications such as [Generating Wikipedia by Summarizing Long Sequences](https://arxiv.org/abs/1801.10198) and [Improving Language Understanding by Generative Pre-Training](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf).
 
+### TransformerDecoder with Pre-Training
+
+The Transformer Decoder was also evaluated in a pre-trained configuration, inspired by the methodology described in the paper [Improving Language Understanding by Generative Pre-Training](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf). In this approach, the Transformer Decoder was initially pre-trained on the [Large Movie Review Dataset](https://ai.stanford.edu/~amaas/data/sentiment/). This dataset, containing 50,000 movie reviews labeled as positive or negative, provides a rich source of textual data for learning general language representations.
+
+After pre-training, the Transformer Decoder was fine-tuned on the sarcasm detection dataset. Fine-tuning involved training the model specifically on the task of detecting sarcasm in news headlines, leveraging the rich language representations learned during the pre-training phase. This two-step process of pre-training followed by fine-tuning helped the model achieve better performance by building on a solid foundation of general language understanding.
+
 ## Results
 
 | Model | Accuracy     |
@@ -69,3 +75,4 @@ The Transformer Decoder has been successfully used in applications such as [Gene
 | RNN Search | 87% |
 | TransformerEncoder with MaxPooling | 85.3% |
 | TransformerDecoder | 79% |
+| TransformerDecoder (pre-trained) | 85% | 

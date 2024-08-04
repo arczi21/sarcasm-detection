@@ -20,28 +20,28 @@ def get_metrics(model, batch, labels, device):
     return loss, accuracy
 
 
-def train(df_train, df_valid, model_class, n_epochs=2, batch_size=256, max_tokens=3000, lr=0.0001,
+def train(data_loader_train, data_loader_test, model, encoder, n_epochs=5, batch_size=256, lr=0.0001,
           wandb_log=False, log_every=100, **kwargs):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    print(device)
+    # print(device)
 
-    data_loader_train = DataLoader(df_train)
-    data_loader_test = DataLoader(df_valid)
+    # data_loader_train = DataLoader(df_train)
+    # data_loader_test = DataLoader(df_valid)
 
-    headlines = data_loader_train.get_all_headlines()
-    encoder = Encoder(headlines, max_tokens=max_tokens)
-    if max_tokens is None:
-        max_tokens = len(encoder)
+    # headlines = data_loader_train.get_all_headlines()
+    # encoder = Encoder(headlines, max_tokens=max_tokens)
 
     batch_loader_train = BatchLoader(data_loader_train, encoder, batch_size)
     batch_loader_test = BatchLoader(data_loader_test, encoder)
 
-    model = model_class(max_tokens, **kwargs).to(device)
+    model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     step = 0
+    test_loss = []
+    test_accuracy = []
 
     if wandb_log:
         wandb.init(project="NLP-sarcasm")
@@ -70,18 +70,15 @@ def train(df_train, df_valid, model_class, n_epochs=2, batch_size=256, max_token
 
                     wandb.log({"test_accuracy": accuracy.item(), "step": step})
                     wandb.log({"test_loss": loss.item(), "step": step})
-            elif step % log_every == 0:
-                batch, labels = batch_loader_test.get_all_data()
-
-                loss, accuracy = get_metrics(model, batch, labels, device)
-
-                print('Epoch: %s | Step: %s | loss: %s | accuracy: %s' % (epoch, (step+1)*batch_size,
-                                                                          loss.item(), accuracy.item()))
 
             step += 1
 
-    batch, labels = batch_loader_test.get_all_data()
-    loss, accuracy = get_metrics(model, batch, labels, device)
+        batch, labels = batch_loader_test.get_all_data()
+        with torch.no_grad():
+            loss, accuracy = get_metrics(model, batch, labels, device)
+        test_loss.append(loss.item())
+        test_accuracy.append(accuracy.item())
+
     if wandb_log:
         wandb.finish()
-    return model, {'loss': loss.item(), 'accuracy': accuracy.item()}
+    return model, {'loss': test_loss, 'accuracy': test_accuracy}
